@@ -9,7 +9,7 @@ const Login: React.FC = () => {
   const { signMessageAsync } = useSignMessage();
   const { chain } = useNetwork();
   const { address, status: accountStatus } = useAccount();
-  const { status } = useSession();
+  const { data: session, status } = useSession();
   const { disconnect } = useDisconnect();
 
   const login = useCallback(async () => {
@@ -62,6 +62,12 @@ const Login: React.FC = () => {
       signOut().catch(console.error);
     }
   }, [status, accountStatus, disconnect, login]);
+
+  useEffect(() => {
+    if (session?.user?.id && address !== session.user.id) {
+      signOut().catch(console.error);
+    }
+  }, [address, session?.user.id]);
 
   return <Web3Button />;
 };
