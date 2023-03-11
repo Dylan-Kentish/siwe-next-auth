@@ -33,8 +33,6 @@ const Login: React.FC = () => {
         throw new Error("Signature is empty");
       }
 
-      console.log("signature", signature);
-
       await signIn("credentials", {
         message: JSON.stringify(message),
         redirect: false,
