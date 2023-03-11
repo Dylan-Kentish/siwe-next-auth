@@ -25,6 +25,8 @@ const Login: React.FC = () => {
         nonce: await getCsrfToken(),
       });
 
+      console.log("domain", window.location.host);
+
       const signature = await signMessageAsync({
         message: message.prepareMessage(),
       });

@@ -51,8 +51,8 @@ const Home: NextPage = () => {
 };
 
 export const getServerSideProps: GetServerSideProps = async ctx => {
-  console.log("NEXTAUTH_URL", env.NEXTAUTH_URL);
-  console.log("VERCEL_URL", process.env.VERCEL_URL);
+  const url = new URL(env.NEXTAUTH_URL);
+  console.log("NEXTAUTH_URL.host", url.host);
 
   return {
     props: {
