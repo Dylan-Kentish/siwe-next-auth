@@ -6,7 +6,6 @@ import Link from "next/link";
 
 import nextAuthLogo from "@/assets/next-auth.png";
 import siweLogo from "@/assets/siwe.png";
-import { env } from "@/env.mjs";
 
 const Home: NextPage = () => {
   const { data: session } = useSession();
@@ -51,9 +50,6 @@ const Home: NextPage = () => {
 };
 
 export const getServerSideProps: GetServerSideProps = async ctx => {
-  const url = new URL(env.NEXTAUTH_URL);
-  console.log("NEXTAUTH_URL.host", url.host);
-
   return {
     props: {
       csrfToken: await getCsrfToken(ctx),
