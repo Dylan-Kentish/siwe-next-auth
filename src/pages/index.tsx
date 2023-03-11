@@ -30,7 +30,7 @@ const Home: NextPage = () => {
               className="h-full w-auto object-contain"
             />
           </Link>
-          <Link href="https://login.xyz//" className="h-full" rel="noreferrer" target="_blank">
+          <Link href="https://login.xyz/" className="h-full" rel="noreferrer" target="_blank">
             <Image src={siweLogo} alt="SIWE Logo" className="h-full w-auto object-contain" />
           </Link>
         </div>
