@@ -36,6 +36,8 @@ export function getAuthOptions(req: NextApiRequest): NextAuthOptions {
           );
           const nextAuthUrl = new URL(env.NEXTAUTH_URL);
 
+          console.log("nextAuthUrl", nextAuthUrl);
+
           const result = await siwe.verify({
             signature: credentials?.signature || "",
             domain: nextAuthUrl.host,
