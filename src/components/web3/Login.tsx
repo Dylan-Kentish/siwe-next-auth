@@ -25,8 +25,6 @@ const Login: React.FC = () => {
         nonce: await getCsrfToken(),
       });
 
-      console.log("domain", window.location.host);
-
       const signature = await signMessageAsync({
         message: message.prepareMessage(),
       });
@@ -35,12 +33,20 @@ const Login: React.FC = () => {
         throw new Error("Signature is empty");
       }
 
-      await signIn("credentials", {
+      const response = await signIn("credentials", {
         message: JSON.stringify(message),
         redirect: false,
         signature,
         callbackUrl,
       });
+
+      if (!response) {
+        throw new Error("Response is empty");
+      }
+
+      if (response.error) {
+        throw new Error(response.error);
+      }
     } catch (error) {
       console.log("error", error);
       await Promise.reject(error);
