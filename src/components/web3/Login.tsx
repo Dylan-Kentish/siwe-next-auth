@@ -33,14 +33,20 @@ const Login: React.FC = () => {
         throw new Error("Signature is empty");
       }
 
-      console.log("signature", signature);
-
-      await signIn("credentials", {
+      const response = await signIn("credentials", {
         message: JSON.stringify(message),
         redirect: false,
         signature,
         callbackUrl,
       });
+
+      if (!response) {
+        throw new Error("Response is empty");
+      }
+
+      if (response.error) {
+        throw new Error(response.error);
+      }
     } catch (error) {
       console.log("error", error);
       await Promise.reject(error);

@@ -34,11 +34,10 @@ export function getAuthOptions(req: NextApiRequest): NextAuthOptions {
           const siwe = new SiweMessage(
             JSON.parse(credentials?.message || "{}") as Partial<SiweMessage>
           );
-          const nextAuthUrl = new URL(env.NEXTAUTH_URL);
 
           const result = await siwe.verify({
             signature: credentials?.signature || "",
-            domain: nextAuthUrl.host,
+            domain: env.NEXTAUTH_URL,
             nonce: await getCsrfToken({ req }),
           });
 
