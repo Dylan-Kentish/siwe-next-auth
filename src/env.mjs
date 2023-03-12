@@ -14,6 +14,13 @@ const server = z.object({
     // VERCEL_URL doesn't include `https` so it cant be validated as a URL
     process.env.VERCEL ? z.string().min(1) : z.string().url()
   ),
+  NEXTAUTH_URL_INTERNAL: z.preprocess(
+    // This makes Vercel deployments not fail if you don't set NEXTAUTH_URL_INTERNAL
+    // Since NextAuth.js automatically uses the VERCEL_URL if present.
+    str => process.env.VERCEL_URL ?? str,
+    // VERCEL_URL doesn't include `https` so it cant be validated as a URL
+    process.env.VERCEL ? z.string().min(1) : z.string().url()
+  ),
 });
 
 /**
@@ -36,6 +43,7 @@ const processEnv = {
   DATABASE_URL: process.env.DATABASE_URL,
   NODE_ENV: process.env.NODE_ENV,
   NEXTAUTH_URL: process.env.NEXTAUTH_URL,
+  NEXTAUTH_URL_INTERNAL: process.env.NEXTAUTH_URL_INTERNAL,
   NEXT_PUBLIC_ALCHEMY_API_KEY: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY,
   NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID,
   NEXT_PUBLIC_CHAIN_ID: process.env.NEXT_PUBLIC_CHAIN_ID,
