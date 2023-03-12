@@ -4,6 +4,7 @@ import { useAccount, useDisconnect, useNetwork, useSignMessage } from "wagmi";
 import { type GetServerSideProps } from "next";
 import { Web3Button } from "@web3modal/react";
 import { useCallback, useEffect } from "react";
+import { env } from "@/env.mjs";
 
 const Login: React.FC = () => {
   const { signMessageAsync } = useSignMessage();
@@ -24,6 +25,9 @@ const Login: React.FC = () => {
         chainId: chain?.id,
         nonce: await getCsrfToken(),
       });
+
+      console.log("origin", window.location.origin);
+      console.log("host", window.location.host);
 
       const signature = await signMessageAsync({
         message: message.prepareMessage(),
@@ -79,6 +83,8 @@ const Login: React.FC = () => {
 };
 
 export const getServerSideProps: GetServerSideProps = async ctx => {
+  console.log("NEXTAUTH_URL", env.NEXTAUTH_URL);
+
   return {
     props: {
       csrfToken: await getCsrfToken(ctx),
