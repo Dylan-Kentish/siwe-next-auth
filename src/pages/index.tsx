@@ -51,7 +51,7 @@ const Home: NextPage = () => {
 };
 
 export const getServerSideProps: GetServerSideProps = async ctx => {
-  console.log("NEXTAUTH_URL_INTERNAL", env.NEXTAUTH_URL_INTERNAL);
+  console.log("VERIFIED_DOMAIN", env.VERIFIED_DOMAIN);
   return {
     props: {
       csrfToken: await getCsrfToken(ctx),
