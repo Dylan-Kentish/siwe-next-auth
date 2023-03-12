@@ -1,10 +1,8 @@
 import { getCsrfToken, signIn, signOut, useSession } from "next-auth/react";
 import { SiweMessage } from "siwe";
 import { useAccount, useDisconnect, useNetwork, useSignMessage } from "wagmi";
-import { type GetServerSideProps } from "next";
 import { Web3Button } from "@web3modal/react";
 import { useCallback, useEffect } from "react";
-import { env } from "@/env.mjs";
 
 const Login: React.FC = () => {
   const { signMessageAsync } = useSignMessage();
@@ -80,16 +78,6 @@ const Login: React.FC = () => {
   }, [address, session?.user.id]);
 
   return <Web3Button />;
-};
-
-export const getServerSideProps: GetServerSideProps = async ctx => {
-  console.log("NEXTAUTH_URL", env.NEXTAUTH_URL);
-
-  return {
-    props: {
-      csrfToken: await getCsrfToken(ctx),
-    },
-  };
 };
 
 export default Login;
