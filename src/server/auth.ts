@@ -37,7 +37,7 @@ export function getAuthOptions(req: NextApiRequest): NextAuthOptions {
 
           const result = await siwe.verify({
             signature: credentials?.signature || "",
-            domain: env.NEXTAUTH_URL_INTERNAL,
+            domain: env.VERIFIED_DOMAIN ?? env.NEXTAUTH_URL,
             nonce: await getCsrfToken({ req }),
           });
 
