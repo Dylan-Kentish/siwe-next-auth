@@ -5,74 +5,97 @@ import { Web3Button } from "@web3modal/react";
 import { useCallback, useEffect } from "react";
 
 const Login: React.FC = () => {
-  const { signMessageAsync } = useSignMessage();
   const { chain } = useNetwork();
-  const { address, status: accountStatus } = useAccount();
+  const { signMessageAsync } = useSignMessage();
   const { data: session, status } = useSession();
   const { disconnect } = useDisconnect();
 
-  const login = useCallback(async () => {
-    try {
-      const callbackUrl = "/";
-      const message = new SiweMessage({
-        domain: window.location.host,
-        address: address,
-        statement: "Sign in with Ethereum to the app.",
-        uri: window.location.origin,
-        version: "1",
-        chainId: chain?.id,
-        nonce: await getCsrfToken(),
-      });
+  const login = useCallback(
+    (address: string) => {
+      async function loginAsync(address: string) {
+        try {
+          const callbackUrl = "/";
+          const message = new SiweMessage({
+            domain: window.location.host,
+            address: address,
+            statement: "Sign in with Ethereum to the app.",
+            uri: window.location.origin,
+            version: "1",
+            chainId: chain?.id,
+            nonce: await getCsrfToken(),
+          });
 
-      const signature = await signMessageAsync({
-        message: message.prepareMessage(),
-      });
+          const signature = await signMessageAsync({
+            message: message.prepareMessage(),
+          });
 
-      if (!signature) {
-        throw new Error("Signature is empty");
-      }
+          if (!signature) {
+            throw new Error("Signature is empty");
+          }
 
-      const response = await signIn("credentials", {
-        message: JSON.stringify(message),
-        redirect: false,
-        signature,
-        callbackUrl,
-      });
+          const response = await signIn("credentials", {
+            message: JSON.stringify(message),
+            redirect: false,
+            signature,
+            callbackUrl,
+          });
 
-      if (!response) {
-        throw new Error("Response is empty");
-      }
+          if (!response) {
+            throw new Error("Response is empty");
+          }
 
-      if (response.error) {
-        throw new Error(response.error);
-      }
-    } catch (error) {
-      console.log("error", error);
-      await Promise.reject(error);
-    }
-  }, [address, chain?.id, signMessageAsync]);
-
-  useEffect(() => {
-    if (status === "unauthenticated" && accountStatus === "connected") {
-      login().then(
-        () => {
-          console.log("login success");
-        },
-        (err: string) => {
-          console.error(err);
-          disconnect();
+          if (response.error) {
+            throw new Error(response.error);
+          }
+        } catch (error) {
+          console.log("error", error);
+          await Promise.reject(error);
         }
-      );
-    } else if (status === "authenticated" && accountStatus === "disconnected") {
+      }
+
+      loginAsync(address).catch(err => {
+        console.error(err);
+        disconnect();
+      });
+    },
+    [chain?.id, disconnect, signMessageAsync]
+  );
+
+  const handleConnected = useCallback(
+    (address: string) => {
+      if (session?.user?.id) {
+        if (session.user.id === address) {
+          return;
+        } else {
+          signOut().catch(console.error);
+        }
+      } else {
+        login(address);
+      }
+    },
+    [login, session?.user?.id]
+  );
+
+  const { address } = useAccount({
+    onConnect: ({ address: connectedAddress }) => {
+      if (!connectedAddress || status === "loading") {
+        return;
+      }
+
+      handleConnected(connectedAddress);
+    },
+    onDisconnect: () => {
       signOut().catch(console.error);
-    }
-  }, [status, accountStatus, disconnect, login]);
+    },
+  });
 
   useEffect(() => {
-    if (session?.user?.id && address !== session.user.id) {
-      signOut().catch(console.error);
+    if (!address || status !== "authenticated") {
+      return;
     }
-  }, [address, session?.user.id]);
+
+    handleConnected(address);
+  }, [address, status, handleConnected]);
 
   return <Web3Button />;
 };
