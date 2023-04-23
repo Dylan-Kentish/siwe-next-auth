@@ -1,7 +1,7 @@
 import { configureChains, createClient, goerli, mainnet, WagmiConfig } from "wagmi";
 import { alchemyProvider } from "wagmi/providers/alchemy";
 import { publicProvider } from "wagmi/providers/public";
-import { EthereumClient, modalConnectors } from "@web3modal/ethereum";
+import { EthereumClient, w3mConnectors } from "@web3modal/ethereum";
 import { Web3Modal } from "@web3modal/react";
 import { env } from "@/env.mjs";
 
@@ -11,6 +11,7 @@ import React from "react";
 
 const apiKey = env.NEXT_PUBLIC_ALCHEMY_API_KEY;
 const chainId = env.NEXT_PUBLIC_CHAIN_ID;
+const projectId = env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID;
 
 const chain = chainId === "1" ? mainnet : goerli;
 
@@ -26,7 +27,7 @@ const { chains, provider, webSocketProvider } = configureChains(
 
 const client = createClient({
   autoConnect: true,
-  connectors: modalConnectors({ appName: "web3Modal", chains }),
+  connectors: w3mConnectors({ chains, version: 2, projectId }),
   provider,
   webSocketProvider,
 });
@@ -37,10 +38,7 @@ const Web3Provider: React.FC<PropsWithChildren> = ({ children }) => (
   <>
     <WagmiConfig client={client}>{children}</WagmiConfig>
 
-    <Web3Modal
-      projectId={env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID}
-      ethereumClient={ethereumClient}
-    />
+    <Web3Modal projectId={projectId} ethereumClient={ethereumClient} />
   </>
 );
 
