@@ -1,11 +1,13 @@
 import { getCsrfToken, signIn, signOut, useSession } from "next-auth/react";
 import { SiweMessage } from "siwe";
-import { useAccount, useDisconnect, useNetwork, useSignMessage } from "wagmi";
+import { useAccount, useDisconnect, useSignMessage } from "wagmi";
 import { Web3Button } from "@web3modal/react";
 import { useCallback, useEffect } from "react";
+import { env } from "@/env.mjs";
+
+const chainId = env.NEXT_PUBLIC_CHAIN_ID;
 
 const Login: React.FC = () => {
-  const { chain } = useNetwork();
   const { signMessageAsync } = useSignMessage();
   const { data: session, status } = useSession();
   const { disconnect } = useDisconnect();
@@ -21,7 +23,7 @@ const Login: React.FC = () => {
             statement: "Sign in with Ethereum to the app.",
             uri: window.location.origin,
             version: "1",
-            chainId: chain?.id,
+            chainId: +chainId,
             nonce: await getCsrfToken(),
           });
 
@@ -58,7 +60,7 @@ const Login: React.FC = () => {
         disconnect();
       });
     },
-    [chain?.id, disconnect, signMessageAsync]
+    [disconnect, signMessageAsync]
   );
 
   const handleConnected = useCallback(
