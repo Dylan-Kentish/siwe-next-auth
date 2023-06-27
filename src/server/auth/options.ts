@@ -31,7 +31,7 @@ function getAuthOptions() {
         async authorize(credentials, req) {
           try {
             const siwe = new SiweMessage(JSON.parse(credentials?.message || '{}'));
-            const nextAuthUrl = new URL(env.NEXTAUTH_URL);
+            const nextAuthUrl = new URL(env.VERIFIED_DOMAIN);
 
             const nonce = await getCsrfToken({ req: { ...req, body: undefined } });
 
@@ -49,8 +49,8 @@ function getAuthOptions() {
             } else {
               return null;
             }
-          } catch (error) {
-            console.error(error);
+          } catch (e) {
+            console.error(e);
             return null;
           }
         },

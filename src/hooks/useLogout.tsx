@@ -5,13 +5,8 @@ export const useLogout = () => {
   const { disconnect } = useDisconnect();
 
   async function logoutAsync() {
-    try {
-      await signOut();
-      disconnect();
-    } catch (error) {
-      console.log('error', error);
-      await Promise.reject(error);
-    }
+    await signOut();
+    disconnect();
   }
 
   return { logoutAsync };

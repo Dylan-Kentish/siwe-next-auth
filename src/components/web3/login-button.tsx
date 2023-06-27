@@ -8,24 +8,27 @@ import { Button } from '../button';
 const LoginButton: React.FC = () => {
   const { loginAsync } = useLogin();
   const { status: sessionStatus } = useSession();
-  const { disconnect } = useDisconnect();
-  const { open } = useWeb3Modal();
+  const { open, isOpen } = useWeb3Modal();
+  const { disconnectAsync } = useDisconnect();
+  const [disabled, setDisabled] = React.useState(false);
 
-  const { status } = useAccount({
+  useAccount({
     onConnect: ({ address }) => {
       if (!address || sessionStatus === 'loading') {
         return;
       }
 
+      setDisabled(true);
+
       loginAsync(address).catch(err => {
+        disconnectAsync().then(() => setDisabled(false), console.error);
         console.error(err);
-        disconnect();
       });
     },
   });
 
   return (
-    <Button onClick={open} disabled={status !== 'disconnected' || sessionStatus === 'loading'}>
+    <Button onClick={open} disabled={sessionStatus === 'loading' || isOpen || disabled}>
       Login
     </Button>
   );

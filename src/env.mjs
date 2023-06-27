@@ -14,7 +14,7 @@ const env = createEnv({
       // VERCEL_URL doesn't include `https` so it cant be validated as a URL
       process.env.VERCEL ? z.string().min(1) : z.string().url()
     ),
-    VERIFIED_DOMAIN: z.string().optional(),
+    VERIFIED_DOMAIN: z.string(),
   },
   client: {
     NEXT_PUBLIC_ALCHEMY_API_KEY: z.string(),
