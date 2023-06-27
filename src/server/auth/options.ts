@@ -31,13 +31,12 @@ function getAuthOptions() {
         async authorize(credentials, req) {
           try {
             const siwe = new SiweMessage(JSON.parse(credentials?.message || '{}'));
-            const nextAuthUrl = new URL(env.VERIFIED_DOMAIN);
 
             const nonce = await getCsrfToken({ req: { ...req, body: undefined } });
 
             const result = await siwe.verify({
               signature: credentials?.signature || '',
-              domain: nextAuthUrl.host,
+              domain: env.VERIFIED_DOMAIN,
               nonce,
             });
 
