@@ -1,17 +1,19 @@
 import React from 'react';
 import { useSession } from 'next-auth/react';
 import { useAccount, useDisconnect } from 'wagmi';
-import { Web3Button } from '@web3modal/react';
+import { useWeb3Modal } from '@web3modal/react';
 import { useLogin } from '@/hooks/useLogin';
+import { Button } from '../button';
 
 const LoginButton: React.FC = () => {
   const { loginAsync } = useLogin();
-  const { status } = useSession();
+  const { status: sessionStatus } = useSession();
   const { disconnect } = useDisconnect();
+  const { open } = useWeb3Modal();
 
-  useAccount({
+  const { status } = useAccount({
     onConnect: ({ address }) => {
-      if (!address || status === 'loading') {
+      if (!address || sessionStatus === 'loading') {
         return;
       }
 
@@ -22,7 +24,14 @@ const LoginButton: React.FC = () => {
     },
   });
 
-  return <Web3Button />;
+  return (
+    <Button
+      onClick={open}
+      disabled={status === 'reconnecting' || status === 'connecting' || sessionStatus === 'loading'}
+    >
+      Login
+    </Button>
+  );
 };
 
 export default LoginButton;
