@@ -45,7 +45,7 @@ export const useLogin = () => {
       }
     } catch (error) {
       console.log('error', error);
-      await Promise.reject(error);
+      return Promise.reject(error);
     }
   }
 

@@ -8,7 +8,7 @@ import { prisma } from '../db';
 import { cookies, headers } from 'next/headers';
 import { getToken } from 'next-auth/jwt';
 
-function getAuthOptions(req: NextApiRequest) {
+function getAuthOptions() {
   const options: NextAuthOptions = {
     session: {
       strategy: 'jwt',
@@ -28,15 +28,17 @@ function getAuthOptions(req: NextApiRequest) {
             placeholder: '0x0',
           },
         },
-        async authorize(credentials) {
+        async authorize(credentials, req) {
           try {
             const siwe = new SiweMessage(JSON.parse(credentials?.message || '{}'));
             const nextAuthUrl = new URL(env.NEXTAUTH_URL);
 
+            const nonce = await getCsrfToken({ req: { ...req, body: undefined } });
+
             const result = await siwe.verify({
               signature: credentials?.signature || '',
               domain: nextAuthUrl.host,
-              nonce: await getCsrfToken({ req: req as unknown as NextApiRequest }),
+              nonce,
             });
 
             if (result.success) {
@@ -47,7 +49,8 @@ function getAuthOptions(req: NextApiRequest) {
             } else {
               return null;
             }
-          } catch {
+          } catch (error) {
+            console.error(error);
             return null;
           }
         },

@@ -25,10 +25,7 @@ const LoginButton: React.FC = () => {
   });
 
   return (
-    <Button
-      onClick={open}
-      disabled={status === 'reconnecting' || status === 'connecting' || sessionStatus === 'loading'}
-    >
+    <Button onClick={open} disabled={status !== 'disconnected' || sessionStatus === 'loading'}>
       Login
     </Button>
   );
