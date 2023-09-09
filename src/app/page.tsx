@@ -4,8 +4,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { AccountButton } from '@/components/account-button';
 
-import nextAuthLogo from '@/assets/next-auth.png';
-import siweLogo from '@/assets/siwe.png';
+import nextAuthLogo from '@/public/next-auth.png';
+import siweLogo from '@/public/siwe.png';
 import { SessionInfo } from '@/components/session-info';
 
 const HomePage: NextPage = () => (

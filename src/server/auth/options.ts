@@ -1,9 +1,10 @@
-import { type NextAuthOptions } from 'next-auth';
+import { type NextAuthOptions, getServerSession as getServerSessionInternal } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { getCsrfToken } from 'next-auth/react';
 import { SiweMessage } from 'siwe';
+
 import { env } from '@/env.mjs';
-import { prisma } from '../db';
+import { prisma } from '@/server/db';
 
 export const authOptions: NextAuthOptions = {
   session: {
@@ -37,9 +38,23 @@ export const authOptions: NextAuthOptions = {
           });
 
           if (result.success) {
+            const dbUser = await prisma.user.upsert({
+              where: {
+                id: siwe.address,
+              },
+              update: {},
+              create: {
+                id: siwe.address,
+              },
+              select: {
+                id: true,
+                role: true,
+              },
+            });
+
             return {
               id: siwe.address,
-              role: 'USER',
+              role: dbUser.role,
             };
           } else {
             return null;
@@ -52,26 +67,36 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async session({ session, token }) {
-      const dbUser = await prisma.user.upsert({
-        where: {
-          id: token.id,
-        },
-        update: {},
-        create: {
-          id: token.id,
-        },
-      });
-      session.user = dbUser;
+    session({ session, token }) {
+      session.user = token;
       return session;
     },
-    jwt({ token, user }) {
+    async jwt({ token, user }) {
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       if (user) {
+        // Persist the id and role to the token right after authentication
         token.id = user.id;
+        token.role = user.role;
+      } else {
+        const dbUser = await prisma.user.findUniqueOrThrow({
+          where: {
+            id: token.id,
+          },
+          select: {
+            role: true,
+          },
+        });
+
+        token.role = dbUser.role;
       }
 
       return token;
     },
   },
 };
+
+export async function getServerSession() {
+  const session = await getServerSessionInternal(authOptions);
+
+  return session;
+}
