@@ -1,8 +1,10 @@
 import React from 'react';
-import { Inter } from 'next/font/google';
+
 import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
 
 import '@/styles/globals.css';
+import { Header } from '@/components/header';
 import { Providers } from '@/components/providers';
 
 const inter = Inter({
@@ -15,9 +17,16 @@ const inter = Inter({
 // ====================
 
 const RootLayout: React.FC<React.PropsWithChildren> = ({ children }) => (
-  <html lang="en">
+  <html lang="en" className="dark min-h-screen">
     <body className={`${inter.variable} font-inter`}>
-      <Providers>{children}</Providers>
+      <Providers>
+        <main>
+          <Header />
+          <div className="flex h-full w-full items-start justify-center p-5 pt-[15vh]">
+            {children}
+          </div>
+        </main>
+      </Providers>
     </body>
   </html>
 );

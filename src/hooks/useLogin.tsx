@@ -1,15 +1,19 @@
-import { env } from '@/env.mjs';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { getCsrfToken, signIn } from 'next-auth/react';
 import { SiweMessage } from 'siwe';
 import { useSignMessage } from 'wagmi';
 
+import { env } from '@/env.mjs';
+
 const chainId = env.NEXT_PUBLIC_CHAIN_ID;
 
 export const useLogin = () => {
+  const path = usePathname();
+  const searchParams = useSearchParams();
   const { signMessageAsync } = useSignMessage();
 
   async function loginAsync(address: string) {
-    const callbackUrl = '/';
+    const callbackUrl = searchParams.get('callbackUrl') || path;
     const message = new SiweMessage({
       domain: window.location.host,
       address: address,
@@ -30,7 +34,7 @@ export const useLogin = () => {
 
     const response = await signIn('credentials', {
       message: JSON.stringify(message),
-      redirect: false,
+      redirect: true,
       signature,
       callbackUrl,
     });

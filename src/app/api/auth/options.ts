@@ -1,3 +1,5 @@
+import 'server-only';
+
 import { type NextAuthOptions, getServerSession as getServerSessionInternal } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { getCsrfToken } from 'next-auth/react';
@@ -29,7 +31,7 @@ export const authOptions: NextAuthOptions = {
         try {
           const siwe = new SiweMessage(JSON.parse(credentials?.message || '{}'));
 
-          const nonce = await getCsrfToken({ req: { ...req, body: undefined } });
+          const nonce = await getCsrfToken({ req: { headers: req.headers } });
 
           const result = await siwe.verify({
             signature: credentials?.signature || '',
@@ -55,6 +57,8 @@ export const authOptions: NextAuthOptions = {
             return {
               id: siwe.address,
               role: dbUser.role,
+              iat: Math.floor(Date.now() / 1000),
+              exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30,
             };
           } else {
             return null;
@@ -92,6 +96,9 @@ export const authOptions: NextAuthOptions = {
 
       return token;
     },
+  },
+  pages: {
+    signIn: '/siwe',
   },
 };
 

@@ -1,16 +1,21 @@
-import React from 'react';
+'use client';
+
+import React, { useState } from 'react';
+
+import { useWeb3Modal } from '@web3modal/react';
 import { useSession } from 'next-auth/react';
 import { useAccount, useDisconnect } from 'wagmi';
-import { useWeb3Modal } from '@web3modal/react';
-import { useLogin } from '@/hooks/useLogin';
-import { Button } from '../button';
 
-const LoginButton: React.FC = () => {
+import { useLogin } from '@/hooks/useLogin';
+
+import { Button } from '../ui/button';
+
+export const LoginButton: React.FC = () => {
   const { loginAsync } = useLogin();
   const { status: sessionStatus } = useSession();
   const { open, isOpen } = useWeb3Modal();
   const { disconnectAsync } = useDisconnect();
-  const [disabled, setDisabled] = React.useState(false);
+  const [disabled, setDisabled] = useState(false);
 
   useAccount({
     onConnect: ({ address }) => {
@@ -28,10 +33,8 @@ const LoginButton: React.FC = () => {
   });
 
   return (
-    <Button onClick={open} disabled={sessionStatus === 'loading' || isOpen || disabled}>
+    <Button size="lg" onClick={open} disabled={sessionStatus === 'loading' || isOpen || disabled}>
       Login
     </Button>
   );
 };
-
-export default LoginButton;

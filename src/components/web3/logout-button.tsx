@@ -1,15 +1,21 @@
-import React from 'react';
-import { useLogout } from '@/hooks/useLogout';
-import { Button } from '../button';
+'use client';
 
-const LogoutButton: React.FC = () => {
+import React from 'react';
+
+import { useLogout } from '@/hooks/useLogout';
+
+import { Button } from '../ui/button';
+
+export const LogoutButton: React.FC = () => {
   const { logoutAsync } = useLogout();
 
   const handleClick = async () => {
     await logoutAsync().catch(console.error);
   };
 
-  return <Button onClick={handleClick}>Logout</Button>;
+  return (
+    <Button size="lg" onClick={handleClick}>
+      Logout
+    </Button>
+  );
 };
-
-export default LogoutButton;
