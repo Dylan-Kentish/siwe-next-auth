@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 
 import { getServerSession } from '@/app/api/auth/options';
 
@@ -8,5 +8,11 @@ import { LogoutButton } from './web3/logout-button';
 export const AccountButton: React.FC = async () => {
   const session = await getServerSession();
 
-  return session ? <LogoutButton /> : <LoginButton />;
+  return session ? (
+    <LogoutButton />
+  ) : (
+    <Suspense>
+      <LoginButton />
+    </Suspense>
+  );
 };
