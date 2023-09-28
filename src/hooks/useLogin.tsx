@@ -13,7 +13,7 @@ export const useLogin = () => {
   const { signMessageAsync } = useSignMessage();
 
   async function loginAsync(address: string) {
-    const callbackUrl = searchParams.get('callbackUrl') || path;
+    const callbackUrl = searchParams.get('callbackUrl') || `${path}?${searchParams}`;
     const message = new SiweMessage({
       domain: window.location.host,
       address: address,
