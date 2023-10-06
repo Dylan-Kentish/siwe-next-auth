@@ -17,10 +17,10 @@ export const SessionInfo: React.FC<{ session: Session }> = ({ session }) => {
       <CardContent>
         <p>Session:</p>
         <p className="truncate">
-          Issued At: {secondsSinceEpochToDate(session.user.iat).toLocaleString()}
+          Issued At: {secondsSinceEpochToDate(session.iat).toLocaleString()}
         </p>
         <p className="truncate">
-          Expires At: {secondsSinceEpochToDate(session.user.exp).toLocaleString()}
+          Expires At: {secondsSinceEpochToDate(session.exp).toLocaleString()}
         </p>
       </CardContent>
       <CardContent>

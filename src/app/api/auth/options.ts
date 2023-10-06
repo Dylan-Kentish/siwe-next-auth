@@ -40,7 +40,7 @@ export const authOptions: NextAuthOptions = {
           });
 
           if (result.success) {
-            const dbUser = await prisma.user.upsert({
+            const user = await prisma.user.upsert({
               where: {
                 id: siwe.address,
               },
@@ -54,12 +54,7 @@ export const authOptions: NextAuthOptions = {
               },
             });
 
-            return {
-              id: siwe.address,
-              role: dbUser.role,
-              iat: Math.floor(Date.now() / 1000),
-              exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30,
-            };
+            return user;
           } else {
             return null;
           }
@@ -71,30 +66,21 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    session({ session, token }) {
-      session.user = token;
-      return session;
-    },
     async jwt({ token, user }) {
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       if (user) {
-        // Persist the id and role to the token right after authentication
+        // Persist the data to the token right after authentication
         token.id = user.id;
         token.role = user.role;
-      } else {
-        const dbUser = await prisma.user.findUniqueOrThrow({
-          where: {
-            id: token.id,
-          },
-          select: {
-            role: true,
-          },
-        });
-
-        token.role = dbUser.role;
       }
 
       return token;
+    },
+    session({ session, token }) {
+      session.user.id = token.id;
+      session.user.role = token.role;
+      session.iat = token.iat;
+      session.exp = token.exp;
+      return session;
     },
   },
   pages: {

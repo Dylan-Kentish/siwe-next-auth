@@ -1,19 +1,18 @@
 generator client {
-    provider        = "prisma-client-js"
-    previewFeatures = ["fullTextSearch"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
-    id            String         @id @default(cuid())
-    role          Role           @default(USER)
+  id   String @id @default(cuid())
+  role Role   @default(USER)
 }
 
 enum Role {
-    USER
-    ADMIN
+  USER
+  ADMIN
 }

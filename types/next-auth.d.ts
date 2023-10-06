@@ -4,19 +4,15 @@ import NextAuth from 'next-auth';
 type Role = 'ADMIN' | 'USER';
 
 declare module 'next-auth' {
-  interface AdapterUser {
-    id: string;
-  }
-
   interface User {
     id: string;
     role: Role;
-    iat: number;
-    exp: number;
   }
 
   interface Session {
     user: User;
+    iat: number;
+    exp: number;
   }
 }
 
