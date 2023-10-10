@@ -2,11 +2,11 @@ import { signOut } from 'next-auth/react';
 import { useDisconnect } from 'wagmi';
 
 export const useLogout = () => {
-  const { disconnect } = useDisconnect();
+  const { disconnectAsync } = useDisconnect();
 
   async function logoutAsync() {
+    await disconnectAsync();
     await signOut();
-    disconnect();
   }
 
   return { logoutAsync };

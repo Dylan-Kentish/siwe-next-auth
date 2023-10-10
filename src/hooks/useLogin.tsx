@@ -1,4 +1,4 @@
-import { usePathname, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { getCsrfToken, signIn } from 'next-auth/react';
 import { SiweMessage } from 'siwe';
 import { useSignMessage } from 'wagmi';
@@ -11,6 +11,7 @@ export const useLogin = () => {
   const path = usePathname();
   const searchParams = useSearchParams();
   const { signMessageAsync } = useSignMessage();
+  const router = useRouter();
 
   async function loginAsync(address: string) {
     const callbackUrl = searchParams.get('callbackUrl') || `${path}?${searchParams}`;
@@ -32,11 +33,10 @@ export const useLogin = () => {
       throw new Error('Signature is empty');
     }
 
-    const response = await signIn('credentials', {
+    const response = await signIn('siwe', {
       message: JSON.stringify(message),
-      redirect: true,
+      redirect: false,
       signature,
-      callbackUrl,
     });
 
     if (!response) {
@@ -46,6 +46,8 @@ export const useLogin = () => {
     if (response.error) {
       throw new Error(response.error);
     }
+
+    router.replace(callbackUrl);
   }
 
   return { loginAsync };

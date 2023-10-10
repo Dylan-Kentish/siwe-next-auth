@@ -14,7 +14,8 @@ export const authOptions: NextAuthOptions = {
   },
   providers: [
     CredentialsProvider({
-      name: 'Ethereum',
+      id: 'siwe',
+      name: 'SIWE',
       credentials: {
         message: {
           label: 'Message',
