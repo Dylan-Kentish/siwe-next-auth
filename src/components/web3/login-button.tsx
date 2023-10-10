@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 
-import { useWeb3Modal } from '@web3modal/react';
+import { useWeb3Modal, useWeb3ModalState } from '@web3modal/wagmi/react';
 import { useSession } from 'next-auth/react';
 import { useAccount, useDisconnect } from 'wagmi';
 
@@ -13,7 +13,8 @@ import { Button } from '../ui/button';
 export const LoginButton: React.FC = () => {
   const { loginAsync } = useLogin();
   const { status: sessionStatus } = useSession();
-  const { open, isOpen } = useWeb3Modal();
+  const { open } = useWeb3Modal();
+  const { open: isOpen } = useWeb3ModalState();
   const { disconnectAsync } = useDisconnect();
   const [disabled, setDisabled] = useState(false);
 
@@ -32,8 +33,16 @@ export const LoginButton: React.FC = () => {
     },
   });
 
+  function handleClick() {
+    open().catch(console.error);
+  }
+
   return (
-    <Button size="lg" onClick={open} disabled={sessionStatus === 'loading' || isOpen || disabled}>
+    <Button
+      size="lg"
+      onClick={handleClick}
+      disabled={sessionStatus === 'loading' || isOpen || disabled}
+    >
       Login
     </Button>
   );
