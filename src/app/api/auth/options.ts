@@ -5,7 +5,6 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import { getCsrfToken } from 'next-auth/react';
 import { SiweMessage } from 'siwe';
 
-import { env } from '@/env.mjs';
 import { prisma } from '@/server/db';
 
 export const authOptions: NextAuthOptions = {
@@ -30,13 +29,15 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials, req) {
         try {
-          const siwe = new SiweMessage(JSON.parse(credentials?.message || '{}'));
+          if (!credentials) throw new Error('No credentials');
+          if (!req.headers) throw new Error('No headers');
 
+          const siwe = new SiweMessage(JSON.parse(credentials.message));
           const nonce = await getCsrfToken({ req: { headers: req.headers } });
 
           const result = await siwe.verify({
-            signature: credentials?.signature || '',
-            domain: env.VERIFIED_DOMAIN,
+            signature: credentials.signature,
+            domain: req.headers.host,
             nonce,
           });
 

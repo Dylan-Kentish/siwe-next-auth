@@ -1,15 +1,12 @@
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { getCsrfToken, signIn } from 'next-auth/react';
 import { SiweMessage } from 'siwe';
-import { useSignMessage } from 'wagmi';
-
-import { env } from '@/env.mjs';
-
-const chainId = env.NEXT_PUBLIC_CHAIN_ID;
+import { useChainId, useSignMessage } from 'wagmi';
 
 export const useLogin = () => {
   const path = usePathname();
   const searchParams = useSearchParams();
+  const chainId = useChainId();
   const { signMessageAsync } = useSignMessage();
   const router = useRouter();
 

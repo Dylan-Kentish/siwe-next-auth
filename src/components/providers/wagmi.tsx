@@ -4,7 +4,7 @@ import React, { type PropsWithChildren } from 'react';
 
 import { walletConnectProvider, EIP6963Connector } from '@web3modal/wagmi';
 import { createWeb3Modal } from '@web3modal/wagmi/react';
-import { configureChains, createConfig, sepolia, mainnet, WagmiConfig } from 'wagmi';
+import { configureChains, createConfig, mainnet, WagmiConfig } from 'wagmi';
 import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet';
 import { InjectedConnector } from 'wagmi/connectors/injected';
 import { WalletConnectConnector } from 'wagmi/connectors/walletConnect';
@@ -14,7 +14,6 @@ import { publicProvider } from 'wagmi/providers/public';
 import { env } from '@/env.mjs';
 
 const apiKey = env.NEXT_PUBLIC_ALCHEMY_API_KEY;
-const chainId = env.NEXT_PUBLIC_CHAIN_ID;
 const projectId = env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID;
 
 const metadata = {
@@ -26,7 +25,7 @@ const metadata = {
 
 const keys = apiKey.split(',');
 
-const chain = chainId === '1' ? mainnet : sepolia;
+const chain = mainnet;
 
 const { chains, publicClient } = configureChains(
   [chain],
@@ -38,7 +37,7 @@ const { chains, publicClient } = configureChains(
 );
 
 const wagmiConfig = createConfig({
-  autoConnect: false,
+  autoConnect: true,
   connectors: [
     new WalletConnectConnector({ chains, options: { projectId, showQrModal: false, metadata } }),
     new EIP6963Connector({ chains }),
@@ -50,6 +49,6 @@ const wagmiConfig = createConfig({
 
 createWeb3Modal({ wagmiConfig, projectId, chains });
 
-export const EthereumProvider: React.FC<PropsWithChildren> = ({ children }) => (
+export const WagmiProvider: React.FC<PropsWithChildren> = ({ children }) => (
   <WagmiConfig config={wagmiConfig}>{children}</WagmiConfig>
 );
