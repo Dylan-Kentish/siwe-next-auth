@@ -36,12 +36,15 @@ export const siweConfig = createSIWEConfig({
     };
   },
   verifyMessage: async ({ message, signature }) => {
+    const path = window.location.pathname;
+    const searchParams = new URLSearchParams(window.location.search);
+    const callbackUrl = searchParams.get('callbackUrl') || `${path}?${searchParams}`;
+
     try {
       const success = await signIn('siwe', {
         message,
-        redirect: false,
         signature,
-        callbackUrl: '/',
+        callbackUrl,
       });
 
       return Boolean(success?.ok);
