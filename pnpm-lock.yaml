@@ -63,10 +63,10 @@ dependencies:
     specifier: ^1.0.7
     version: 1.0.7(tailwindcss@3.4.1)
   viem:
-    specifier: ^1
+    specifier: ^1.21.4
     version: 1.21.4(typescript@5.3.3)(zod@3.22.4)
   wagmi:
-    specifier: ^1
+    specifier: ^1.4.13
     version: 1.4.13(@types/react@18.2.47)(react-dom@18.2.0)(react@18.2.0)(typescript@5.3.3)(viem@1.21.4)(zod@3.22.4)
   zod:
     specifier: ^3.22.4
