@@ -1,28 +1,15 @@
-// @ts-check
+import './src/env.mjs';
 
-!process.env.SKIP_ENV_VALIDATION && (await import('./src/env.mjs'));
-
-/** @type {import("next").NextConfig} */
+/** @type {import('next').NextConfig} */
 const config = {
   reactStrictMode: true,
-  swcMinify: true,
-  i18n: {
-    locales: ['en'],
-    defaultLocale: 'en',
+  logging: { fetches: { fullUrl: true } },
+  experimental: {
+    webpackBuildWorker: true,
   },
-  // eslint-disable-next-line @typescript-eslint/promise-function-async, @typescript-eslint/no-shadow
   webpack: config => {
-    config.resolve.fallback = {
-      fs: false,
-      path: false,
-      os: false,
-      net: false,
-      tls: false,
-      'pino-pretty': false,
-      encoding: false,
-      lokijs: false,
-    };
-
+    // https://github.com/WalletConnect/walletconnect-monorepo/issues/1908
+    config.externals.push('pino-pretty', 'lokijs', 'encoding');
     return config;
   },
 };
