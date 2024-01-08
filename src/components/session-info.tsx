@@ -26,6 +26,7 @@ export const SessionInfo: React.FC<{ session: Session }> = ({ session }) => {
       <CardContent>
         <p>User:</p>
         <p className="truncate">ID: {session.user.id}</p>
+        <p>Chain: {session.user.chainId}</p>
         <p>
           Role: <strong>{session.user.role}</strong>
         </p>

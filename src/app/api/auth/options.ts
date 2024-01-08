@@ -1,18 +1,23 @@
 import 'server-only';
 
+import { ethers } from 'ethers';
 import { type NextAuthOptions, getServerSession as getServerSessionInternal } from 'next-auth';
-import CredentialsProvider from 'next-auth/providers/credentials';
+import Credentials from 'next-auth/providers/credentials';
 import { getCsrfToken } from 'next-auth/react';
 import { SiweMessage } from 'siwe';
 
+import { env } from '@/env.mjs';
 import { prisma } from '@/server/db';
+
+const projectId = env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID;
 
 export const authOptions: NextAuthOptions = {
   session: {
     strategy: 'jwt',
+    maxAge: 30 * 60, // 30 minutes
   },
   providers: [
-    CredentialsProvider({
+    Credentials({
       id: 'siwe',
       name: 'SIWE',
       credentials: {
@@ -32,31 +37,45 @@ export const authOptions: NextAuthOptions = {
           if (!credentials) throw new Error('No credentials');
           if (!req.headers) throw new Error('No headers');
 
-          const siwe = new SiweMessage(JSON.parse(credentials.message));
+          const siwe = new SiweMessage(credentials.message);
+          const provider = new ethers.JsonRpcProvider(
+            `https://rpc.walletconnect.com/v1?chainId=eip155:${siwe.chainId}&projectId=${projectId}`
+          );
           const nonce = await getCsrfToken({ req: { headers: req.headers } });
 
-          const result = await siwe.verify({
-            signature: credentials.signature,
-            domain: req.headers.host,
-            nonce,
-          });
+          const result = await siwe.verify(
+            {
+              signature: credentials.signature,
+              domain: req.headers.host,
+              nonce,
+            },
+            {
+              provider,
+            }
+          );
 
           if (result.success) {
-            const user = await prisma.user.upsert({
+            const dbUser = await prisma.user.upsert({
               where: {
                 id: siwe.address,
               },
-              update: {},
+              update: {
+                chainId: siwe.chainId,
+              },
               create: {
                 id: siwe.address,
+                chainId: siwe.chainId,
               },
               select: {
-                id: true,
                 role: true,
               },
             });
 
-            return user;
+            return {
+              id: siwe.address,
+              chainId: siwe.chainId,
+              role: dbUser.role,
+            };
           } else {
             return null;
           }
@@ -68,11 +87,25 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    jwt: async ({ token, user }) => {
       if (user) {
         // Persist the data to the token right after authentication
         token.id = user.id;
+        token.chainId = user.chainId;
         token.role = user.role;
+      } else {
+        const dbUser = await prisma.user.findUniqueOrThrow({
+          where: {
+            id: token.id,
+          },
+          select: {
+            chainId: true,
+            role: true,
+          },
+        });
+
+        token.chainId = dbUser.chainId;
+        token.role = dbUser.role;
       }
 
       return token;
@@ -80,6 +113,7 @@ export const authOptions: NextAuthOptions = {
     session({ session, token }) {
       session.user.id = token.id;
       session.user.role = token.role;
+      session.user.chainId = token.chainId;
       session.iat = token.iat;
       session.exp = token.exp;
       return session;

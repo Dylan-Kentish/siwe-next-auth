@@ -8,8 +8,9 @@ datasource db {
 }
 
 model User {
-  id   String @id @default(cuid())
-  role Role   @default(USER)
+  id      String @id @default(cuid())
+  chainId Int
+  role    Role   @default(USER)
 }
 
 enum Role {

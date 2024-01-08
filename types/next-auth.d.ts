@@ -1,10 +1,12 @@
-import { Role } from '@prisma/client';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import NextAuth from 'next-auth';
+
+type Role = 'ADMIN' | 'USER';
 
 declare module 'next-auth' {
   interface User {
     id: string;
+    chainId: number;
     role: Role;
   }
 
@@ -18,6 +20,7 @@ declare module 'next-auth' {
 declare module 'next-auth/jwt' {
   interface JWT {
     id: string;
+    chainId: number;
     role: Role;
     iat: number;
     exp: number;

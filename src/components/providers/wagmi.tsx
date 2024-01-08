@@ -12,6 +12,7 @@ import { alchemyProvider } from 'wagmi/providers/alchemy';
 import { publicProvider } from 'wagmi/providers/public';
 
 import { env } from '@/env.mjs';
+import { siweConfig } from '@/lib/siwe';
 
 const apiKey = env.NEXT_PUBLIC_ALCHEMY_API_KEY;
 const projectId = env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID;
@@ -47,7 +48,12 @@ const wagmiConfig = createConfig({
   publicClient,
 });
 
-createWeb3Modal({ wagmiConfig, projectId, chains });
+createWeb3Modal({
+  siweConfig,
+  wagmiConfig,
+  projectId,
+  chains,
+});
 
 export const WagmiProvider: React.FC<PropsWithChildren> = ({ children }) => (
   <WagmiConfig config={wagmiConfig}>{children}</WagmiConfig>
