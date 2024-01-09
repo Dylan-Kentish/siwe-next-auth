@@ -41,13 +41,13 @@ export const siweConfig = createSIWEConfig({
     const callbackUrl = searchParams.get('callbackUrl') || `${path}?${searchParams}`;
 
     try {
-      const success = await signIn('siwe', {
+      await signIn('siwe', {
         message,
         signature,
         callbackUrl,
       });
 
-      return Boolean(success?.ok);
+      return true;
     } catch (error) {
       return false;
     }
