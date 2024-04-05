@@ -3,7 +3,6 @@ import 'server-only';
 import { ethers } from 'ethers';
 import { type NextAuthOptions, getServerSession as getServerSessionInternal } from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
-import { getCsrfToken } from 'next-auth/react';
 import { SiweMessage } from 'siwe';
 
 import { env } from '@/env.mjs';
@@ -31,6 +30,11 @@ export const authOptions: NextAuthOptions = {
           type: 'text',
           placeholder: '0x0',
         },
+        csrfToken: {
+          label: 'CSRF Token',
+          type: 'text',
+          placeholder: '0x0',
+        },
       },
       async authorize(credentials, req) {
         try {
@@ -41,13 +45,12 @@ export const authOptions: NextAuthOptions = {
           const provider = new ethers.JsonRpcProvider(
             `https://rpc.walletconnect.com/v1?chainId=eip155:${siwe.chainId}&projectId=${projectId}`
           );
-          const nonce = await getCsrfToken({ req: { headers: req.headers } });
 
           const result = await siwe.verify(
             {
               signature: credentials.signature,
               domain: req.headers.host,
-              nonce,
+              nonce: credentials.csrfToken,
             },
             {
               provider,
