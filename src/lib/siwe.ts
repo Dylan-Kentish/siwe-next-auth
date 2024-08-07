@@ -1,21 +1,17 @@
 'use client';
 
-import { createSIWEConfig } from '@web3modal/siwe';
+import { createSIWEConfig, formatMessage } from '@web3modal/siwe';
 import { getCsrfToken, getSession, signIn, signOut } from 'next-auth/react';
-import { SiweMessage } from 'siwe';
+import { mainnet } from 'viem/chains';
 
 export const siweConfig = createSIWEConfig({
-  createMessage: ({ nonce, address, chainId }) => {
-    return new SiweMessage({
-      nonce,
-      chainId,
-      address,
-      version: '1',
-      uri: window.location.origin,
-      domain: window.location.host,
-      statement: 'Sign In With Ethereum to prove you control this wallet.',
-    }).prepareMessage();
-  },
+  getMessageParams: async () => ({
+    uri: window.location.origin,
+    domain: window.location.host,
+    chains: [mainnet.id],
+    statement: 'Sign In With Ethereum to prove you control this wallet.',
+  }),
+  createMessage: ({ address, ...args }) => formatMessage(args, address),
   getNonce: async () => {
     const nonce = await getCsrfToken();
     if (!nonce) {
@@ -48,7 +44,7 @@ export const siweConfig = createSIWEConfig({
       });
 
       return true;
-    } catch (error) {
+    } catch {
       return false;
     }
   },
@@ -57,7 +53,7 @@ export const siweConfig = createSIWEConfig({
       await signOut();
 
       return true;
-    } catch (error) {
+    } catch {
       return false;
     }
   },

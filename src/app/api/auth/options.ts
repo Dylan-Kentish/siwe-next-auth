@@ -1,9 +1,8 @@
 import 'server-only';
 
-import { ethers } from 'ethers';
+import { getAddressFromMessage, getChainIdFromMessage, verifySignature } from '@web3modal/siwe';
 import { type NextAuthOptions, getServerSession as getServerSessionInternal } from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
-import { SiweMessage } from 'siwe';
 
 import { env } from '@/env.mjs';
 import { prisma } from '@/server/db';
@@ -41,33 +40,30 @@ export const authOptions: NextAuthOptions = {
           if (!credentials) throw new Error('No credentials');
           if (!req.headers) throw new Error('No headers');
 
-          const siwe = new SiweMessage(credentials.message);
-          const provider = new ethers.JsonRpcProvider(
-            `https://rpc.walletconnect.com/v1?chainId=eip155:${siwe.chainId}&projectId=${projectId}`
-          );
+          const { message, signature } = credentials;
+          const address = getAddressFromMessage(message);
+          const chainId = getChainIdFromMessage(message);
+          const isValid = await verifySignature({
+            address,
+            message,
+            signature,
+            chainId,
+            projectId,
+          });
 
-          const result = await siwe.verify(
-            {
-              signature: credentials.signature,
-              domain: req.headers.host,
-              nonce: credentials.csrfToken,
-            },
-            {
-              provider,
-            }
-          );
+          const chain = Number(chainId.split(':')[1]);
 
-          if (result.success) {
+          if (isValid) {
             const dbUser = await prisma.user.upsert({
               where: {
-                id: siwe.address,
+                id: address,
               },
               update: {
-                chainId: siwe.chainId,
+                chainId: chain,
               },
               create: {
-                id: siwe.address,
-                chainId: siwe.chainId,
+                id: address,
+                chainId: chain,
               },
               select: {
                 role: true,
@@ -75,8 +71,8 @@ export const authOptions: NextAuthOptions = {
             });
 
             return {
-              id: siwe.address,
-              chainId: siwe.chainId,
+              id: address,
+              chainId: chain,
               role: dbUser.role,
             };
           } else {
