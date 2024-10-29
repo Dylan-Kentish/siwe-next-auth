@@ -1,6 +1,6 @@
 import 'server-only';
 
-import { getAddressFromMessage, getChainIdFromMessage, verifySignature } from '@web3modal/siwe';
+import { getAddressFromMessage, getChainIdFromMessage, verifySignature } from '@reown/appkit-siwe';
 import { type NextAuthOptions, getServerSession as getServerSessionInternal } from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 

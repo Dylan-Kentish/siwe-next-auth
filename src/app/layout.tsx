@@ -25,7 +25,7 @@ const inter = Inter({
 // ====================
 
 const RootLayout: React.FC<React.PropsWithChildren> = async ({ children }) => {
-  const initialState = cookieToInitialState(config, headers().get('cookie'));
+  const initialState = cookieToInitialState(config.wagmiConfig, headers().get('cookie'));
   const session = await getServerSession();
 
   return (

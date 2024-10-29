@@ -1,6 +1,6 @@
 'use client';
 
-import { createSIWEConfig, formatMessage } from '@web3modal/siwe';
+import { createSIWEConfig, formatMessage } from '@reown/appkit-siwe';
 import { getCsrfToken, getSession, signIn, signOut } from 'next-auth/react';
 import { mainnet } from 'viem/chains';
 
@@ -50,7 +50,13 @@ export const siweConfig = createSIWEConfig({
   },
   signOut: async () => {
     try {
-      await signOut();
+      const session = await getSession();
+      console.log('session', session);
+
+      // TODO: this is required because for some reason, clicking sign (message) calls signout...
+      if (session) {
+        await signOut();
+      }
 
       return true;
     } catch {
